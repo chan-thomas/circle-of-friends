@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Friends</title>
+</head>
+<body>
+    <div id="circle-of-friends-logo">
+        <!--logo /images/circle-of-friends.jpg and text My Fridens-->
+        <img src="/images/circle-of-friends.jpg" alt="Circle of Friends Logo" style="vertical-align: middle;">
+        <h1 style="display: inline; vertical-align: middle;">My Friends</h1>
+    </div>
+    <div id="currentDate"></div>
+    <div id="add-friend">
+        <h2>Add new friend</h2>
+        <input type="text" id="name" placeholder="Name">
+        <input type="text" id="email" placeholder="Email">
+        <input type="text" id="phone" placeholder="Phone">
+        <input type="text" id="age" placeholder="Age">
+        <button id="add-btn">Add</button>
+    </div>
+    <div>
+        <h2>Search</h2>
+        <input type="text" id="search" placeholder="Email">
+        <button id="search-btn">Search</button>
+    </div>
+    <div id="friends">
+        <h2>Friends</h2>
+        <ul id="friends-list"></ul>
+    </div>
+<script>
+    //use fetch to get data from the server
+    //update currentDate from getCurrentDate
+    fetch('/getCurrentDate')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('currentDate').innerText = data.currentDate;
+        })
+        .catch(error => console.error('Error fetching date:', error));
+</script>
+</body>
+</html>
