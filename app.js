@@ -1,8 +1,10 @@
 import express from 'express';
+import { storeFriends, retrieveFriends } from './data-handling/friends.js';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const friends = [];
+const friends = retrieveFriends();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -38,6 +40,7 @@ app.post('/addFriend', (req, res) => {
         age: age
     };
     friends.push(friend);
+    storeFriends(friends);
     res.json({ 'friends': friends });
 });
 app.listen(PORT, () => {
