@@ -23,8 +23,10 @@ app.get('/searchFriend/:email', (req, res) => {
     if (friend === undefined) {
         console.log(`Friend ${email} not found`);
         res.json({ 'message': `Friend ${email} not found` });
+    }else{
+        console.log(`Friend ${email} found`);
+        res.json({ friend });
     }
-    res.json({ friend });
 });
 app.post('/addFriend', (req, res) => {
     console.log(`adding a friend ${req.body.name}`);
