@@ -22,22 +22,69 @@
     </div>
     <div>
         <h2>Search</h2>
-        <input type="text" id="search" placeholder="Email">
+        <input type="text" id="searchEmail" placeholder="Email">
         <button id="search-btn">Search</button>
     </div>
     <div id="friends">
         <h2>Friends</h2>
         <ul id="friends-list"></ul>
     </div>
-<script>
-    //use fetch to get data from the server
-    //update currentDate from getCurrentDate
-    fetch('/getCurrentDate')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('currentDate').innerText = data.currentDate;
-        })
-        .catch(error => console.error('Error fetching date:', error));
-</script>
+    <script>
+        //get currentDate
+        fetch('/getCurrentDate')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('currentDate').innerText = data.currentDate;
+            })
+            .catch(error => console.error('Error fetching date:', error));
+        //use fetch to add new friend to the server
+        document.getElementById('add-btn').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const age = document.getElementById('age').value;
+            fetch('/addFriend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, phone, age })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById('name').value = '';
+                        document.getElementById('email').value = '';
+                        document.getElementById('phone').value = '';
+                        document.getElementById('age').value = '';
+                        document.getElementById('friends-list').innerHTML = JSON.stringify(data.friends);
+                    } else {
+                        alert('Failed to add friend');
+                    }
+                });
+        });
+
+        //use fetch to lookup a friend with email from the server
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const email = document.getElementById('searchEmail').value;
+            fetch(`/searchFriend/${email}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.friend) {
+                        document.getElementById('searchEmail').value = '';
+                        document.getElementById('friends-list').innerHTML = JSON.stringify(data.friend);
+
+                    } else {
+                        console.log(data);
+
+                        if (data.message) {
+                            alert(data.message);
+                        } else {
+                            alert('Friend not found');
+                        }
+                    }
+                });
+        });
+    </script>
 </body>
 </html>
