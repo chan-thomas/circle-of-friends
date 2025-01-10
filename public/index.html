@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Friends</title>
 </head>
+
 <body>
     <div id="circle-of-friends-logo">
         <!--logo /images/circle-of-friends.jpg and text My Fridens-->
@@ -43,7 +45,7 @@
             const email = document.getElementById('email').value;
             const phone = document.getElementById('phone').value;
             const age = document.getElementById('age').value;
-            fetch('/addFriend', {
+            fetch('/friends/addFriend', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -57,7 +59,16 @@
                         document.getElementById('email').value = '';
                         document.getElementById('phone').value = '';
                         document.getElementById('age').value = '';
-                        document.getElementById('friends-list').innerHTML = JSON.stringify(data.friends);
+                        const friendsList = document.getElementById('friends-list')
+                        // Clear the existing list items
+                        friendsList.innerHTML = '';
+
+                        // Loop over the friends array and create <li> elements
+                        data.friends.forEach(friend => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `${friend.name} (${friend.email}) - ${friend.phone} - ${friend.age}`;
+                            friendsList.appendChild(listItem);
+                        });
                     } else {
                         alert('Failed to add friend');
                     }
@@ -67,7 +78,7 @@
         //use fetch to lookup a friend with email from the server
         document.getElementById('search-btn').addEventListener('click', () => {
             const email = document.getElementById('searchEmail').value;
-            fetch(`/searchFriend/${email}`)
+            fetch(`/friends/searchFriend/${email}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.friend) {
@@ -87,4 +98,5 @@
         });
     </script>
 </body>
+
 </html>
