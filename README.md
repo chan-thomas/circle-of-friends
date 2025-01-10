@@ -35,6 +35,71 @@ npm i express-session passport passport-local connect-ensure-login bcrypt
     - **Usage**: When a user registers, their password is hashed using bcrypt before being stored in the database. During login, the provided password is hashed again and compared to the stored hash to verify the user's identity.
 By using these dependencies together, you can implement a robust authentication system that uses email and password to authenticate users and authorize access to your application.
 
+### Configuring Passport
+
+To configure Passport for local authentication, you need to set up the following components:
+```js
+// use express-session to maintain session
+app.use(session({
+    secret: 'I-Love-WebD3v',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+// setup Passport LocalStrategy to authenticate using email and password
+passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
+    if (email === admin.email) {
+        console.log(`LocalStrategy. email: ${email}, password: ${password}`);
+        bcrypt.compare(password, admin.password, (err, result) => {
+            console.log(`bcrypt.compare. result: ${result}`);
+            if (err) return done(err);
+            if (result) {
+                return done(null, admin)
+            }
+            else {
+                console.log(`LocalStrategy. result bad . email: ${email}, password: ${password}`);
+                return done(null, false, { message: 'Incorrect password' });
+            }
+        });
+    } else {
+        console.log(`LocalStrategy. Error. email: ${email}, password: ${password}`);
+        return done(null, false, { message: 'Incorrect email' });
+    }
+}));
+// persist login sessions
+passport.serializeUser((user, done) => {
+    done(null, user.email);
+});
+
+// remove user from session (deserializeUser)
+passport.deserializeUser((email, done) => {
+    done(null, { email });
+});
+app.use(passport.initialize());
+app.use(passport.session());
+
+// protect routes that require authentication
+app.use('/friends', ensureLoggedIn('/'), friendsRouter);
+
+// login route: check credentials using email and password then enable friend-contact div in index.html
+app.post('/login', passport.authenticate('local', { failureRedirect: '/error' }), (req, res) => {
+    console.log('Login successful');
+    const loginStatus = req.isAuthenticated();
+    if (loginStatus) {
+        res.send({ authenticated: loginStatus, message: 'Login successful' });
+    } else {
+        res.send({ authenticated: 'fail', message: 'Invalid credentials' });
+    }
+});
+app.get('/error', (req, res) => {
+    console.log('Error in login');
+
+    res.send({ authenticated: 'fail', message: 'Invalid credentials' });
+});
+``` 
+
+
 ### Setting Up Environment Variables
 Creating a `.env` file to the root directory of yourproject. Use this file to store system specific variables like port number, or sensitive information such as passwords and API keys is a common practice in Node.js applications. This file is **not committed to version control** and is used to store environment-specific configuration values. Make sure to add the `.env` file to your `.gitignore` file to prevent it from being pushed to the repository.
 
